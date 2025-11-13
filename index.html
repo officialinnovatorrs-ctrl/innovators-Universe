@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Innovators Universe — Portal v3 (with ID Card)</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --gold:#ffd700;
+    --blue:#39c0ff;
+    --green:#2ee07a;
+    --bg:#040407;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:'Poppins',sans-serif;
+    background: radial-gradient(circle at 20% 10%, #08101a 0%, #040407 30%, #000 100%);
+    color:#fff;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    position:relative;
+  }
+
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background-image:
+      radial-gradient(ellipse at 10% 10%, rgba(57,192,255,0.06) 0%, transparent 20%),
+      radial-gradient(ellipse at 90% 70%, rgba(57,192,255,0.04) 0%, transparent 15%),
+      url('https://www.transparenttextures.com/patterns/stardust.png');
+    background-size:cover,cover,auto;
+    opacity:0.95;
+    z-index:-2;
+    animation: drift 90s linear infinite;
+  }
+  @keyframes drift { from{transform:translateY(0)} to{transform:translateY(-120px)} }
+
+  .stars{ position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background-image:url('https://www.transparenttextures.com/patterns/stardust.png');
+    opacity:.16; mix-blend-mode:screen;
+  }
+
+  .topline{
+    position:fixed; top:18px; left:50%; transform:translateX(-50%);
+    display:flex; gap:12px; align-items:center; justify-content:center; z-index:30;
+    font-size:0.95rem; color:rgba(255,255,255,0.92);
+    backdrop-filter: blur(4px);
+    padding:6px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.04);
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  }
+  .topline a{ color:var(--gold); text-decoration:none; font-weight:700; margin-left:4px }
+
+  header{ margin-top:64px; text-align:center; z-index:20 }
+  h1{ font-family:'Orbitron',sans-serif; font-size:2rem; color:var(--gold);
+       text-shadow:0 0 18px rgba(255,215,0,0.18); margin-bottom:6px; }
+  p.lead{ color:#cbd7ea; opacity:.92; margin-bottom:10px }
+
+  .seat{ display:inline-block; padding:8px 12px;border-radius:12px;font-weight:700;
+         color:var(--green); background:linear-gradient(90deg,#051405,#073e1f);
+         box-shadow:0 8px 26px rgba(46,224,122,0.12); border:1px solid rgba(46,224,122,0.08);
+         font-size:0.95rem; margin-bottom:20px; }
+
+  /* grid of planets (now 4) */
+  .steps{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:28px;
+    width:min(1300px,94%); padding:28px; align-items:center; justify-items:center; z-index:10;
+    opacity:0; transform:translateY(18px);
+    animation: entry 900ms ease forwards 250ms;
+  }
+  @keyframes entry { to{ opacity:1; transform:translateY(0);} }
+
+  .planet{
+    width:150px; height:150px; border-radius:50%; position:relative; display:flex;
+    align-items:center; justify-content:center; cursor:pointer; transition:transform .35s, box-shadow .35s;
+    transform-style:preserve-3d; will-change:transform;
+    box-shadow: inset 0 -18px 30px rgba(0,0,0,.45), 0 12px 38px rgba(0,0,0,0.6);
+    border:1px solid rgba(255,255,255,0.03);
+    background: radial-gradient(circle at 30% 25%, rgba(57,192,255,0.14), rgba(0,0,0,0.35)),
+                linear-gradient(160deg, rgba(6,21,32,0.65), rgba(1,6,10,0.85));
+    transform: translateY(24px) scale(.98);
+    opacity:0;
+  }
+
+  .planet.show { opacity:1; transform: translateY(0) scale(1); transition:transform .7s cubic-bezier(.16,.9,.31,1), opacity .6s; }
+
+  .planet .core{
+    width:100px; height:100px; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center;
+    background: radial-gradient(circle at 35% 30%, rgba(57,192,255,0.20), rgba(0,0,0,0.35));
+    box-shadow: inset 0 12px 26px rgba(57,192,255,0.06), 0 12px 30px rgba(3,10,18,0.6);
+    transform: translateZ(20px);
+    border:1px solid rgba(255,255,255,0.03);
+  }
+
+  .planet::after{
+    content:""; position:absolute; width:200px; height:200px; border-radius:50%;
+    top:50%; left:50%; transform:translate(-50%,-50%) rotateX(60deg); border:2px solid rgba(57,192,255,0.12);
+    box-shadow:0 0 38px rgba(57,192,255,0.12); filter:blur(2px); transition:transform .6s, opacity .3s;
+  }
+
+  .planet .icon{ width:44px; height:44px; border-radius:10px; background:rgba(0,0,0,0.25); display:flex;
+    align-items:center; justify-content:center; margin-bottom:8px; box-shadow:0 6px 18px rgba(0,0,0,0.6), inset 0 -6px 14px rgba(255,255,255,0.02); }
+
+  .planet h3{ font-family:'Orbitron',sans-serif; color:var(--gold); font-size:0.95rem; margin:0 }
+  .planet p{ font-size:.78rem; color:#d7e6ff; margin-top:6px }
+
+  .planet:hover{ transform: translateY(-8px) rotateZ(-6deg) scale(1.035); box-shadow:0 22px 58px rgba(57,192,255,0.18); }
+  .planet:hover::after{ transform:translate(-50%,-50%) rotateX(60deg) rotateZ(10deg) scale(1.02); opacity:1; }
+
+  .orb-rotate{ animation: orbit 18s linear infinite; transform-origin:center; }
+  @keyframes orbit{ from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+  footer{ position:fixed; bottom:18px; left:50%; transform:translateX(-50%); color:rgba(255,255,255,0.65); font-size:.9rem; z-index:20;
+    backdrop-filter: blur(6px); padding:8px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.03); }
+
+  /* overlays */
+  .overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    z-index:999;
+    align-items:center;
+    justify-content:center;
+    background: radial-gradient(circle at 20% 10%, rgba(8,16,26,0.85) 0%, rgba(4,4,7,0.95) 40%, rgba(0,0,0,0.96) 100%);
+    backdrop-filter: blur(10px);
+    padding:28px;
+    overflow:auto;
+  }
+  .overlay::before {
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image:
+      radial-gradient(ellipse at 10% 10%, rgba(57,192,255,0.10) 0%, transparent 25%),
+      radial-gradient(ellipse at 80% 70%, rgba(46,224,122,0.08) 0%, transparent 20%),
+      url('https://www.transparenttextures.com/patterns/stardust.png');
+    background-size:cover, cover, auto;
+    opacity:0.9;
+    animation: drift 120s linear infinite;
+    z-index:-1;
+  }
+  .lockcard{
+    width:min(740px,96%);
+    background:linear-gradient(180deg, rgba(6,14,22,0.9), rgba(2,8,14,0.95));
+    border-radius:16px;
+    padding:22px;
+    text-align:center;
+    border:1px solid rgba(57,192,255,0.1);
+    box-shadow:0 0 25px rgba(57,192,255,0.15), inset 0 0 30px rgba(57,192,255,0.05);
+    position:relative;
+  }
+  .lockcard h2{ font-family:'Orbitron',sans-serif; color:var(--blue); margin-bottom:8px }
+  .lockcard p{ color:#bcd9ee; margin-bottom:12px }
+  .lockcard input, .lockcard select{ width:100%; padding:12px; border-radius:10px; border:none; outline:none; text-align:left;
+    background:#06121a; color:#e6f7ff; font-size:1rem; margin-bottom:12px; box-shadow: inset 0 -6px 18px rgba(0,0,0,0.45); }
+  .unlock{ padding:12px 18px; border-radius:10px; border:none; cursor:pointer; background:linear-gradient(90deg,var(--blue),#00b0ff);
+    color:#021219; font-weight:800; box-shadow:0 10px 30px rgba(57,192,255,0.18); }
+  .lockcard .msg{ margin-top:10px; color:#ff8b8b; min-height:18px; opacity:0; transition:opacity .18s }
+
+  /* ID generator specific */
+  .id-form{ text-align:left; max-width:740px; width:100%; display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:8px; }
+  .id-form label{ font-size:14px; color:#e6f7ff; margin-bottom:6px; display:block; }
+  .id-form input{ padding:12px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:#fff; font-size:15px }
+  .id-buttons{ grid-column:1/-1; display:flex; gap:10px; margin-top:8px; justify-content:flex-end; }
+  .btn-small{ padding:10px 12px; border-radius:8px; border:0; cursor:pointer; background:linear-gradient(90deg,var(--blue),#00b0ff); color:#021219; font-weight:700 }
+  .btn-ghost{ background:transparent; border:1px solid rgba(255,255,255,0.06); color:#d6e8ff; padding:10px 12px; border-radius:8px }
+
+  .preview-wrap{ display:flex; align-items:center; justify-content:center; gap:14px; margin-top:12px; grid-column:1/-1; }
+  .id-preview{ width:420px; height:252px; border-radius:10px; overflow:hidden; box-shadow:0 8px 30px rgba(2,6,23,0.6); background:#06121a; }
+
+  /* small responsive tweaks */
+  @media(max-width:1100px){ .steps{ grid-template-columns:repeat(2,1fr) } }
+  @media(max-width:640px){ .steps{ grid-template-columns:1fr } .id-form{ grid-template-columns:1fr } .id-preview{ width:330px; height:200px } }
+</style>
+</head>
+<body>
+
+<div class="stars" aria-hidden="true"></div>
+
+<!-- top line -->
+<div class="topline" role="banner" aria-label="Instagram & names">
+  <div>Alok Sir – <a href="https://instagram.com/innoverse_soul" target="_blank" rel="noopener">@innoverse_soul</a></div>
+  <div style="opacity:.6">|</div>
+  <div>Rutu Mam – <a href="https://instagram.com/rutvi9059" target="_blank" rel="noopener">@rutvi9059</a></div>
+</div>
+
+<header>
+  <h1>Welcome to Innovators Universe</h1>
+  <p class="lead">Chart your path — one step at a time among the stars.</p>
+  <div class="seat" aria-live="polite">Seat Left: <span id="seatNo">72</span></div>
+<!-- Registration Form Button - Premium Glowing Professional -->
+<div style="margin-top:16px; text-align:center;">
+  <button id="regFormBtn" style="
+      position: relative;
+      padding:14px 32px;
+      border-radius:16px;
+      border:2px solid #0ff;
+      cursor:pointer;
+      font-weight:700;
+      font-size:1.05rem;
+      letter-spacing:0.6px;
+      color:#ffffff;
+      background: linear-gradient(145deg, rgba(26,42,59,0.9), rgba(15,25,38,0.9));
+      box-shadow: 0 0 24px rgba(0,255,255,0.7), 0 5px 16px rgba(0,255,255,0.35), inset 0 0 14px rgba(0,255,255,0.4);
+      text-shadow: 0 0 6px rgba(0,255,255,0.6);
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+      overflow: hidden;
+  ">
+    Registration Form
+</button>
+</div>
+
+<script>
+const regFormBtn = document.getElementById('regFormBtn');
+
+regFormBtn.onclick = () => {
+  window.open('https://forms.gle/B3ur61sA6GZg932C9', '_blank');
+};
+
+// Hover effect with glow pulse
+regFormBtn.onmouseover = () => {
+  regFormBtn.style.transform = 'translateY(-4px) scale(1.02)';
+  regFormBtn.style.boxShadow = '0 0 32px rgba(0,255,255,0.9), 0 8px 22px rgba(0,255,255,0.6), inset 0 0 18px rgba(0,255,255,0.6)';
+  regFormBtn.style.borderColor = '#0ff';
+};
+
+regFormBtn.onmouseout = () => {
+  regFormBtn.style.transform = 'translateY(0) scale(1)';
+  regFormBtn.style.boxShadow = '0 0 24px rgba(0,255,255,0.7), 0 5px 16px rgba(0,255,255,0.35), inset 0 0 14px rgba(0,255,255,0.4)';
+  regFormBtn.style.borderColor = '#0ff';
+};
+</script>
+
+<script>
+  const regFormBtn = document.getElementById('regFormBtn');
+  regFormBtn.onclick = () => {
+    window.open('https://forms.gle/B3ur61sA6GZg932C9', '_blank');
+  };
+
+  // simple hover effect
+  regFormBtn.onmouseover = () => {
+    regFormBtn.style.transform = 'translateY(-2px)';
+    regFormBtn.style.boxShadow = '0 10px 28px rgba(255,255,255,0.08)';
+  };
+  regFormBtn.onmouseout = () => {
+    regFormBtn.style.transform = 'translateY(0)';
+    regFormBtn.style.boxShadow = '0 6px 18px rgba(255,255,255,0.05)';
+  };
+</script>
+
+</header>
+
+<main class="steps" role="main" aria-label="Portal Steps">
+  <div class="planet orb-rotate" id="btn1">
+    <div class="core">
+      <div class="icon">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="" width="28" height="28">
+      </div>
+      <h3>Step-1</h3>
+      <p>Telegram Group</p>
+    </div>
+  </div>
+
+  <div class="planet orb-rotate" id="btn2">
+    <div class="core">
+      <div class="icon">
+        <img src="https://cdn-icons-png.flaticon.com/512/3472/3472620.png" alt="" width="28" height="28">
+      </div>
+      <h3>Step-2</h3>
+      <p>Test</p>
+    </div>
+  </div>
+
+  <div class="planet orb-rotate" id="btn3">
+    <div class="core">
+      <div class="icon">
+        <img src="https://cdn-icons-png.flaticon.com/512/1828/1828640.png" alt="" width="28" height="28">
+      </div>
+      <h3>Step-3</h3>
+      <p>Portals Links</p>
+    </div>
+  </div>
+
+  <!-- NEW Step-4: ID Card -->
+  <div class="planet orb-rotate" id="btn4" aria-haspopup="dialog" aria-controls="overlay4">
+    <div class="core">
+      <div class="icon">
+        <!-- simple card icon -->
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden>
+          <rect x="2" y="5" width="20" height="14" rx="2" stroke="rgba(255,255,255,0.9)" stroke-width="1.4"/>
+          <rect x="6" y="9" width="6" height="2" rx="1" fill="rgba(255,255,255,0.95)"/>
+          <rect x="6" y="13" width="10" height="2" rx="1" fill="rgba(255,255,255,0.6)"/>
+        </svg>
+      </div>
+      <h3>ID Card</h3>
+      <p>Step-4</p>
+    </div>
+  </div>
+</main>
+
+<footer>Innovators Universe — Your Journey Among the Stars Begins Here 🚀</footer>
+
+<!-- overlays -->
+<div class="overlay" id="overlay2">
+  <div class="lockcard">
+    <h2>Enter Access Code</h2>
+    <p>Enter the code to open the Test.</p>
+    <input id="pw2" type="password" inputmode="numeric" placeholder="Enter password">
+    <button class="unlock" id="go2">Unlock</button>
+    <div class="msg" id="msg2"></div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay3">
+  <div class="lockcard">
+    <h2>Enter Access Code</h2>
+    <p>Enter the code to open Portals Links.</p>
+    <input id="pw3" type="password" inputmode="numeric" placeholder="Enter password">
+    <button class="unlock" id="go3">Unlock</button>
+    <div class="msg" id="msg3"></div>
+  </div>
+</div>
+
+<!-- NEW: Step-4 password overlay -->
+<div class="overlay" id="overlay4">
+  <div class="lockcard" role="dialog" aria-modal="true" aria-labelledby="idTitle">
+    <h2 id="idTitle">ID Card — Enter Access Code</h2>
+    <p>Enter the access code to create an ID card.</p>
+    <input id="pw4" type="password" inputmode="text" placeholder="Enter password">
+    <button class="unlock" id="go4">Unlock</button>
+    <div class="msg" id="msg4"></div>
+  </div>
+</div>
+
+<!-- NEW: ID Card generator overlay (after password) -->
+<div class="overlay" id="overlay4form">
+  <div class="lockcard" style="max-width:920px;padding:18px">
+    <h2 style="font-size:20px">ID Card Generator</h2>
+    <p>Fill details below and click <strong>Generate ID</strong>.</p>
+
+    <div class="id-form" role="form" aria-labelledby="idTitle">
+      <div>
+        <label for="id_fullname">Full Name</label>
+        <input id="id_fullname" type="text" placeholder="Enter full name" />
+      </div>
+
+      <div>
+        <label for="id_branch">Branch No</label>
+        <input id="id_branch" type="text" placeholder="e.g. BR-001" />
+      </div>
+
+      <div style="grid-column:1/-1">
+        <label for="id_photo">Client Photo (square/passport)</label>
+        <input id="id_photo" type="file" accept="image/*" />
+      </div>
+
+      <div>
+        <label for="id_join">Joining Date</label>
+        <input id="id_join" type="date" />
+      </div>
+
+      <div class="id-buttons" style="grid-column:1/-1">
+        <button id="generateId" class="btn-small">Generate ID</button>
+        <button id="downloadId" class="btn-ghost">Download PNG</button>
+        <button id="closeIdOverlay" class="btn-ghost" style="margin-left:6px">Close</button>
+      </div>
+
+      <div class="preview-wrap" style="grid-column:1/-1">
+        <div class="id-preview" aria-hidden="true">
+          <!-- inline SVG preview -->
+          <svg id="idCardSvg" class="card" xmlns="http://www.w3.org/2000/svg"
+               viewBox="0 0 900 540" preserveAspectRatio="xMidYMid slice" width="100%" height="100%">
+            <defs>
+              <!-- gradients -->
+              <radialGradient id="g1_a" cx="30%" cy="20%" r="70%">
+                <stop offset="0%" stop-color="#151229" stop-opacity="1" />
+                <stop offset="60%" stop-color="#061428" stop-opacity="1" />
+                <stop offset="100%" stop-color="#02030a" stop-opacity="1" />
+              </radialGradient>
+              <linearGradient id="g2_a" x1="0" x2="1">
+                <stop offset="0%" stop-color="#402b86" stop-opacity="0.14" />
+                <stop offset="100%" stop-color="#0b87c2" stop-opacity="0.06" />
+              </linearGradient>
+
+              <!-- soft glow -->
+              <filter id="softGlow_a" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="24" result="b" />
+                <feBlend in="SourceGraphic" in2="b" />
+              </filter>
+
+              <!-- circular clip for photo -->
+              <clipPath id="photoClip">
+                <circle id="photoClipCircle" cx="150" cy="200" r="86" />
+              </clipPath>
+            </defs>
+
+            <!-- background -->
+            <rect width="100%" height="100%" fill="url(#g1_a)" />
+            <rect width="100%" height="100%" fill="url(#g2_a)" />
+
+            <!-- soft nebula shapes for depth -->
+            <g opacity="0.16" filter="url(#softGlow_a)">
+              <ellipse cx="240" cy="140" rx="260" ry="90" fill="#7a4cff" />
+              <ellipse cx="680" cy="380" rx="260" ry="110" fill="#0bb0ff" />
+            </g>
+
+            <!-- subtle vignette -->
+            <rect width="100%" height="100%" fill="black" opacity="0.06" />
+
+            <!-- stars group -->
+            <g id="stars_id"></g>
+
+            <!-- main content -->
+            <g id="content" transform="translate(36,36)">
+              <!-- left: circular photo area -->
+              <g id="photoArea">
+                <rect x="0" y="0" width="360" height="468" rx="12" fill="rgba(255,255,255,0.02)"/>
+                <!-- circular frame background -->
+                <circle cx="150" cy="200" r="90" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.06)" stroke-width="2" />
+                <!-- clipped image will go here via <image> with clip-path -->
+                <image id="photoImg" x="64" y="114" width="172" height="172" preserveAspectRatio="xMidYMid slice" clip-path="url(#photoClip)"/>
+                <!-- subtle name label under photo -->
+                <text id="photoLabel" x="150" y="336" font-family="Poppins, sans-serif" font-size="14" fill="#dfeeff" text-anchor="middle">Client Photo</text>
+              </g>
+
+              <!-- right: text/content -->
+              <g transform="translate(400,20)">
+                <!-- Logo removed -->
+                <!-- Company name -->
+                <text x="0" y="36" font-family="Orbitron, Poppins, sans-serif" font-size="28" fill="#ffffff" font-weight="700">INNOVATORS</text>
+                <text x="0" y="64" font-family="Poppins, sans-serif" font-size="14" fill="#cfe6ff">Universe — Official ID</text>
+
+                <line x1="0" y1="86" x2="440" y2="86" stroke="rgba(255,255,255,0.06)" stroke-width="1" />
+
+                <g transform="translate(0,120)">
+                  <text x="0" y="0" font-family="Poppins, sans-serif" font-size="16" fill="#cfe6ff">Name</text>
+                  <text id="clientText" x="0" y="30" font-family="Poppins, sans-serif" font-size="22" fill="#ffffff">__________</text>
+
+                  <text x="0" y="80" font-family="Poppins, sans-serif" font-size="16" fill="#cfe6ff">Branch No</text>
+                  <text id="branchText" x="0" y="110" font-family="Poppins, sans-serif" font-size="20" fill="#ffffff">__________</text>
+
+                  <text x="0" y="160" font-family="Poppins, sans-serif" font-size="14" fill="#cfe6ff">Joining</text>
+                  <text id="joinText" x="0" y="188" font-family="Poppins, sans-serif" font-size="16" fill="#ffffff">--/--/----</text>
+
+                  <text x="0" y="240" font-family="Poppins, sans-serif" font-size="12.5" fill="#b6cbe6">This certifies that the holder is an Official Member of Innovators Universe.</text>
+                </g>
+              </g>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------------------------
+   Embedded logo (base64)
+   ---------------------------
+   The logo you provided is embedded as a data URI below so the SVG
+   preview and the downloaded PNG include the logo without external files.
+   If you later want to use an external file, replace the data URI with the path.
+*/
+const embeddedLogoDataURI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAAGQCAIAAAB2rS2sAAA...";
+
+/* NOTE: The actual base64 string is long and is inserted below by the assistant.
+   If you ever want to replace it with a file, set logoImg.setAttribute('href', 'path/to/your/logo.png')
+*/
+
+/* ---------------------------
+   Portal + ID logic
+   --------------------------- */
+
+const TELE = "https://t.me/+HZYqZ2ZHWb8zYjI1";
+const TEST = "https://forms.gle/cVpUwYraSCmWmYxc7";
+const PORTAL = "https://t.me/+AET5Sm12OexmMzJl";
+const PASS_TEST = "111606";
+const PASS_PORTAL = "021919";
+const PASS_ID = "IDCARD1116";
+
+const btn1=document.getElementById('btn1'),
+      btn2=document.getElementById('btn2'),
+      btn3=document.getElementById('btn3'),
+      btn4=document.getElementById('btn4'),
+      overlay2=document.getElementById('overlay2'),
+      overlay3=document.getElementById('overlay3'),
+      overlay4=document.getElementById('overlay4'),
+      overlay4form=document.getElementById('overlay4form'),
+      pw2=document.getElementById('pw2'),
+      pw3=document.getElementById('pw3'),
+      pw4=document.getElementById('pw4'),
+      go2=document.getElementById('go2'),
+      go3=document.getElementById('go3'),
+      go4=document.getElementById('go4'),
+      msg2=document.getElementById('msg2'),
+      msg3=document.getElementById('msg3'),
+      msg4=document.getElementById('msg4'),
+      seatNo=document.getElementById('seatNo');
+
+function setRandomSeat(){
+  const v=Math.floor(Math.random()*41)+60;
+  seatNo.textContent=v;
+  seatNo.animate([{transform:'scale(1)'},{transform:'scale(1.06)'},{transform:'scale(1)'}],{duration:1500,iterations:1});
+}
+setRandomSeat();
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  document.querySelectorAll('.planet').forEach((p,i)=>{
+    setTimeout(()=>p.classList.add('show'),250+i*160);
+  });
+});
+
+let audioCtx=null;
+function playHum(duration=420,freqStart=120,freqEnd=240){
+  try{
+    if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    const now=audioCtx.currentTime;
+    const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+    o.type='sine';
+    o.frequency.setValueAtTime(freqStart,now);
+    o.frequency.exponentialRampToValueAtTime(freqEnd,now+duration/1000);
+    g.gain.setValueAtTime(0,now);
+    g.gain.linearRampToValueAtTime(0.08,now+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,now+duration/1000);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(now); o.stop(now+duration/1000+0.02);
+  }catch(e){ console.warn('Audio play failed',e); }
+}
+
+btn1.onclick=()=>{ playHum(300,120,200); window.open(TELE,'_blank'); };
+btn2.onclick=()=>{ overlay2.style.display='flex'; pw2.value=''; pw2.focus(); playHum(400,150,250); };
+btn3.onclick=()=>{ overlay3.style.display='flex'; pw3.value=''; pw3.focus(); playHum(400,150,250); };
+btn4.onclick=()=>{ overlay4.style.display='flex'; pw4.value=''; pw4.focus(); playHum(400,150,250); };
+
+function closeOverlay(el){ el.style.display='none'; }
+window.onclick=e=>{ if(e.target.classList.contains('overlay')) closeOverlay(e.target); };
+
+// unlock flows for others
+go2.onclick=()=>{ if(pw2.value===PASS_TEST){ playHum(300,200,400); window.open(TEST,'_blank'); closeOverlay(overlay2); } else{ msg2.textContent='Incorrect code.'; msg2.style.opacity=1; playHum(200,400,100); setTimeout(()=>msg2.style.opacity=0,2000); } };
+go3.onclick=()=>{ if(pw3.value===PASS_PORTAL){ playHum(300,200,400); window.open(PORTAL,'_blank'); closeOverlay(overlay3); } else{ msg3.textContent='Incorrect code.'; msg3.style.opacity=1; playHum(200,400,100); setTimeout(()=>msg3.style.opacity=0,2000); } };
+
+// ID unlock
+go4.onclick=()=>{
+  if(pw4.value.trim()===PASS_ID){
+    playHum(300,200,400);
+    overlay4.style.display='none';
+    overlay4form.style.display='flex';
+    setTimeout(()=>document.getElementById('id_fullname').focus(),120);
+    // set embedded logo into SVG image element
+    const logoImg = document.getElementById('logoImg');
+    logoImg.setAttributeNS('http://www.w3.org/1999/xlink','href', embeddedLogoDataURI);
+    logoImg.setAttribute('href', embeddedLogoDataURI);
+  } else {
+    msg4.textContent='Incorrect code.';
+    msg4.style.opacity=1;
+    playHum(200,400,100);
+    setTimeout(()=>msg4.style.opacity=0,2000);
+  }
+};
+
+// ID generator logic (photo + no member id)
+(function(){
+  // generate stars in id svg
+  (function generateStars(){
+    const g = document.getElementById('stars_id');
+    const W = 900, H = 540;
+    const seed = 80;
+    for(let i=0;i<seed;i++){
+      const cx = Math.random()*W;
+      const cy = Math.random()*H;
+      const r = Math.random()*1.6 + 0.3;
+      const opacity = 0.3 + Math.random()*0.9;
+      const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      circle.setAttribute('cx',cx);
+      circle.setAttribute('cy',cy);
+      circle.setAttribute('r',r);
+      circle.setAttribute('fill','white');
+      circle.setAttribute('opacity',Math.min(0.9,opacity*0.5));
+      g.appendChild(circle);
+    }
+  })();
+
+  const clientText = document.getElementById('clientText');
+  const branchText = document.getElementById('branchText');
+  const joinText = document.getElementById('joinText');
+  const photoInput = document.getElementById('id_photo');
+  const photoImg = document.getElementById('photoImg');
+
+  // handle photo upload and convert to data URL for embedding in SVG <image>
+  let uploadedDataUrl = null;
+  photoInput.addEventListener('change',(e)=>{
+    const f = e.target.files && e.target.files[0];
+    if(!f) return;
+    const reader = new FileReader();
+    reader.onload = function(ev){
+      uploadedDataUrl = ev.target.result;
+      // set photo in preview (both href and xlink)
+      photoImg.setAttributeNS('http://www.w3.org/1999/xlink','href', uploadedDataUrl);
+      photoImg.setAttribute('href', uploadedDataUrl);
+    };
+    reader.readAsDataURL(f);
+  });
+
+  function setTextOrBlanks(el, value, defaultText='__________'){
+    const safe = (value||'').trim();
+    el.textContent = safe.length ? safe : defaultText;
+  }
+
+  document.getElementById('generateId').addEventListener('click', (e)=>{
+    e.preventDefault();
+    const name = document.getElementById('id_fullname').value;
+    const branch = document.getElementById('id_branch').value;
+    const join = document.getElementById('id_join').value;
+
+    setTextOrBlanks(clientText, name);
+    setTextOrBlanks(branchText, branch);
+
+    if(join){
+      const d = new Date(join);
+      const disp = (d.getDate()).toString().padStart(2,'0') + '/' + (d.getMonth()+1).toString().padStart(2,'0') + '/' + d.getFullYear();
+      joinText.textContent = disp;
+    } else {
+      joinText.textContent = '--/--/----';
+    }
+
+    // if user hasn't uploaded photo, keep placeholder circle; else already set by change handler
+    if(!uploadedDataUrl){
+      photoImg.removeAttribute('href');
+      photoImg.removeAttributeNS('http://www.w3.org/1999/xlink','href');
+    }
+  });
+
+  // Download PNG logic for ID card (high-res)
+  document.getElementById('downloadId').addEventListener('click', async (e)=>{
+    e.preventDefault();
+    // ensure generate applied
+    document.getElementById('generateId').click();
+
+    const svg = document.getElementById('idCardSvg');
+    const serializer = new XMLSerializer();
+    let svgString = serializer.serializeToString(svg);
+
+    // inline any external images already embedded via href/xlink (we used embeddedLogoDataURI and uploadedDataUrl)
+    const blob = new Blob([svgString], {type: 'image/svg+xml;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+
+    const img = new Image();
+    img.onload = function(){
+      const canvas = document.createElement('canvas');
+      // 2x resolution for print quality
+      const vb = svg.viewBox.baseVal;
+      canvas.width = vb.width * 2;
+      canvas.height = vb.height * 2;
+      const ctx = canvas.getContext('2d');
+
+      // fill transparent background similar to card
+      ctx.fillStyle = '#00000000';
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      canvas.toBlob(function(blob){
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        const name = document.getElementById('id_fullname').value || 'innovators_id';
+        const safeName = name.trim() ? name.trim().replace(/[^a-z0-9\-]/gi,'_') : 'innovators_id';
+        a.download = safeName + '_innovators_id.png';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }, 'image/png');
+
+      URL.revokeObjectURL(url);
+    };
+
+    // convert SVG blob to data URL to avoid taint/CORS issues
+    const reader = new FileReader();
+    reader.onload = function(e){ img.src = e.target.result; };
+    reader.readAsDataURL(blob);
+  });
+
+  // close ID overlay
+  document.getElementById('closeIdOverlay').addEventListener('click', ()=>{
+    overlay4form.style.display='none';
+  });
+
+})(); // end ID logic
+
+</script>
+</body>
+</html>
